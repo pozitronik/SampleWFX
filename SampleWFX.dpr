@@ -206,7 +206,7 @@ end;
 
 function FsGetFileW(RemoteName, LocalName: pWideChar; CopyFlags: integer; RemoteInfo: pRemoteInfo): integer; stdcall; //Копирование файла из файловой системы плагина
 var
-	I, y: integer;
+	I, y, r: integer;
 	abracadabra: WideString;
 	FileStream: TFileStream;
 begin
@@ -215,10 +215,14 @@ begin
 	for I := 1 to 100 do
 	begin
 		abracadabra := '';
-		for y := 0 to $FFFF do abracadabra := abracadabra + Random(I).ToString;
+		for y := 0 to $5FFF do abracadabra := abracadabra + Random(I).ToString;
 
 		FileStream.Write(abracadabra, Length(abracadabra));
-		MyProgressProc(PluginNum, RemoteName, LocalName, I);
+		r := MyProgressProc(PluginNum, RemoteName, LocalName, I);
+		if r <> 0 then
+		begin
+			MessageBoxW(0, 'booya', pWideChar(r.ToString), mb_ok);
+		end;
 		//Sleep(100);
 	end;
 	FlushFileBuffers(FileStream.Handle);
@@ -226,7 +230,6 @@ begin
 	Result := FS_FILE_OK;
 
 end;
-
 
 function FsDisconnectW(DisconnectRoot: pWideChar): Bool; stdcall;
 begin
